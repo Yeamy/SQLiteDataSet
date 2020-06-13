@@ -90,11 +90,6 @@ public class DsFactory<T> {
         return null;
     }
 
-    public T readExtra(Cursor cursor) throws InstantiationException, IllegalAccessException {
-        List<DsField> list = findColumnIndex(cursor);
-        return read(cursor, list);
-    }
-
     public void readArray(List<T> out, Cursor cursor, int limit)
             throws InstantiationException, IllegalAccessException {
         List<DsField> list = findColumnIndex(cursor);
