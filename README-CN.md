@@ -63,7 +63,7 @@ DsAdapter adapter = new DsAdapter() {
     }
 };
 
-factory.addAdapter(Type.class, adapter);               // 添加自定义类型
+factory.addAdapter(Type.class, adapter);                   // 添加自定义类型
 Fruit apple = factory.read(cursor);                        // 读取单个
 factory.readArray(list, cursor);                           // 读取多个
 
@@ -81,6 +81,7 @@ public class Vegetables implements DsObserver {
     @DsColumn("Name")
     public String name;
     ...
+
     @Override
     public void onDsFinish(){}
 }
@@ -88,7 +89,7 @@ public class Vegetables implements DsObserver {
 ```
 
 ### 5. 扩展对象
-来自ResultSet的同一行数据可以被解析到同一实例内。
+来自Cursor的同一行数据可以被解析到同一实例内，如下：
 
 数据表:
 
@@ -101,6 +102,7 @@ public class Vegetables implements DsObserver {
 
 ```java
 public class User {
+
     @DsColumn("UserName")
     public String name;
 
@@ -114,19 +116,22 @@ public class User {
 
 ```
 
-为了将province和city封装到同个参数内，可以使用如下方式：
+为了将province和city封装到同个成员变量内，可以使用如下方式：
 
 ```java
 public class User {
+
     @DsColumn("UserName")
     public String name;
     ...
+
     // 注意：参数不能声明DsColumn，参数名不能与列名重复，
     // 否则只能使用DsAdapter来解析
     public City location;
 }
 
 public class City {
+
     @DsColumn("Province")
     public String province;
 

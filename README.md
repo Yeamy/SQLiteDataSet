@@ -2,7 +2,7 @@ SQLiteDataSet
 ===================================
 English | [中文](README-CN.md)
 
-This project is a simple tools to unSerialize SQLite data to Java Bean.
+This project is a simple tools to deserialize SQLite data to Java Bean.
 
 For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
@@ -36,18 +36,17 @@ ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ### 3. DsFactory\<T> & DsAdapter
 The `DsFactory` support base type in sql, such as int, long, String and so on. 
 
-Using `DsAdapter` to unserialize custom type field.
+Using `DsAdapter` to deserialize custom type field.
 
 ```java
 SQLiteDatabase db = getReadableDatabase();              // the database
-
 DsFactory<Fruit> factory = new DsFactory(Fruit.class);  // build a factory
 
 DsAdapter adapter = new DsAdapter() {
 
     /**
      * @param t
-     *           any other base type field has been unserialized
+     *           any other base type field has been deserialized
      * @param field
      *           using field.getName() to distinguish same type.
      * @param cursor
@@ -88,7 +87,7 @@ public class Vegetables implements DsObserver {
 ```
 
 ### 5. Extra Field
-Data come from same row of Cursor can unserialize into a extra field.
+Data come from same row of Cursor can deserialize into a extra field.
 
 source table:
 
@@ -97,7 +96,7 @@ source table:
 |Nike|Guangdong|Shantou|...|
 |...|
 
-Usually, unserialize like this:
+Usually, deserialize like this:
 
 ```java
 public class User {
@@ -124,7 +123,7 @@ public class User {
     public String name;
     ...
 
-    // NOTICE：must without annotion DsColumn, field name cannot as same sa column,
+    // NOTICE：must without annotation DsColumn, field name cannot as same sa column,
     // otherwise using DsAdapter instead
     public City location;
 }
