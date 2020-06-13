@@ -1,7 +1,10 @@
-SQL Data Set
+SQLiteDataSet
 ===================================
+English | [中文](README-CN.md)
+
 This project is a simple tools to unSerialize SQLite data to Java Bean.
-Also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
+
+For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
 ### 1. Annotation
 ```java
@@ -26,7 +29,7 @@ Generally, using `DsReader` is a easy and fast way.
 ```java
 SQLiteDatabase db = getReadableDatabase();             // the database
 String sql = "SELECT ...";                             // the sql
-Fruit apple = DsReader.read(stmt, sql, Fruit.class);   // read one
+Fruit apple = DsReader.read(db, sql, Fruit.class);     // read one
 ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ```
 
@@ -53,16 +56,15 @@ DsAdapter adapter = new DsAdapter() {
      *           the index of the target column in Cursor.
      */
     @Override
-    public void read(Object t, Field field, Cursor cursor, int columnIndex) throws InstantiationException, IllegalAccessException {
+    public void read(Object t, Field field, Cursor cursor, int columnIndex)
+                throws InstantiationException, IllegalAccessException {
         FruitType type = new FruitType(....);
         field.set(t, type);
     }
 };
 
 factory.addAdapter(Type.class, adapter);                // add custom type
-
 Fruit apple = factory.read(cursor);                     // read one
-
 factory.readArray(list, cursor);                        // read array
 
 List<Fruit> list = new ArrayList<Fruit>();
