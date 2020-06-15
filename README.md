@@ -6,41 +6,68 @@ This project is a simple tools to deserialize SQLite data to Java Bean.
 
 For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
-### 1. Annotation
+### 1. Use DsReader
+First, create a Java Bean
+
 ```java
 public class Fruit {
 
-    @DsColumn("Name")
-    public String name;      // the column in database is "Name"
+    public String num;       // the column is the same with the field name
+
+    @DsColumn("FruitName")
+    public String name;      // the column in database is "FruitName"
     
     @DsIgnore
-    public String count;     // ignore this field
-    
-    public FruitType type;   // the name of the column is the same as the field
-                             // regist as custom type (see DsAdapter)
+    public String owner;     //  ignore this field
 
-    public Skin skin;        // this field no DsColumn treat as extra type
+    ...
 }
 ```
 
-### 2. DsReader
-Generally, using `DsReader` is a easy and fast way.
+Second, deserialize via `DsReader`.
 
 ```java
-SQLiteDatabase db = getReadableDatabase();             // the database
-String sql = "SELECT ...";                             // the sql
+SQLiteDatabase db = ...;                               // the database
+String sql = ...;                                      // the query sql
 Fruit apple = DsReader.read(db, sql, Fruit.class);     // read one
 ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ```
+Ok, that's done, easy and fast;
 
-### 3. DsFactory\<T> & DsAdapter
-The `DsFactory` support base type in sql, such as int, long, String and so on. 
+### 2. Extra Type
+To deserialize multiple columns in the same row of cursor into one field.
 
-Using `DsAdapter` to deserialize custom type field.
+For example, to package *image* and *color* into the same field called *skin*, do like this:
 
 ```java
-SQLiteDatabase db = getReadableDatabase();              // the database
-DsFactory<Fruit> factory = new DsFactory(Fruit.class);  // build a factory
+public class Skin {
+    
+    public String image;
+    
+    public int color;
+}
+
+public class Fruit {
+    ...
+
+    public Skin skin; // NOTICE：no annotation DsColumn, and there cannot be a column with the same name as the field
+}
+
+```
+
+### 3. Custom Type
+    
+```java
+public class Fruit {
+    ...
+
+    public FruitType type; // FruitType is the custom type
+}
+
+```
+Using `DsFactory` and `DsAdapter` to deserialize custom type field.
+
+```java
 
 DsAdapter adapter = new DsAdapter() {
 
@@ -57,21 +84,24 @@ DsAdapter adapter = new DsAdapter() {
     @Override
     public void read(Object t, Field field, Cursor cursor, int columnIndex)
                 throws InstantiationException, IllegalAccessException {
-        FruitType type = new FruitType(....);
-        field.set(t, type);
+        FruitType type = ...;
+        // field.set(t, type);
+        Fruit f = (Fruit) t;
+        f.type = type;
     }
 };
 
-factory.addAdapter(Type.class, adapter);                // add custom type
-Fruit apple = factory.read(cursor);                     // read one
-factory.readArray(list, cursor);                        // read array
+SQLiteDatabase db = ...;                                   // the database
+DsFactory<Fruit> factory = new DsFactory(Fruit.class);     // build a factory
+factory.addAdapter(Type.class, adapter);                   // add custom type
+Fruit apple = factory.read(cursor);                        // read one
 
 List<Fruit> list = new ArrayList<Fruit>();
-factory.readArray(list, cursor);                        // read array with custom list
+factory.readArray(list, cursor);                           // read array with custom list
 ```
 
 ### 4. DsObserver
-If you want to do anything when the Bean has been readed, you can implements `DsObserver.class`, and do it in `onDsFinish()`.
+If you want to do anything when the Bean has been deserialize, implements `DsObserver.class`, and do it in `onDsFinish()`.
 
 ```java
 public class Vegetables implements DsObserver {
@@ -86,56 +116,3 @@ public class Vegetables implements DsObserver {
 
 ```
 
-### 5. Extra Field
-Data come from same row of Cursor can deserialize into a extra field.
-
-source table:
-
-|UserName|Province|CityName|...|
-|:-:|:-:|:-:|:-:|
-|Nike|Guangdong|Shantou|...|
-|...|
-
-Usually, deserialize like this:
-
-```java
-public class User {
-
-    @DsColumn("UserName")
-    public String name;
-
-    @DsColumn("Province")
-    public String province;
-
-    @DsColumn("CityName")
-    public String city;
-    ...
-}
-
-```
-
-to package `province` and `city` into same field `location`, see below:
-
-```java
-public class User {
-
-    @DsColumn("UserName")
-    public String name;
-    ...
-
-    // NOTICE：must without annotation DsColumn, field name cannot as same sa column,
-    // otherwise using DsAdapter instead
-    public City location;
-}
-
-public class City {
-
-    @DsColumn("Province")
-    public String province;
-
-    @DsColumn("CityName")
-    public String city;
-    ...
-}
-
-```
