@@ -13,12 +13,7 @@ class DsField {
 
     static DsField get(Field field, DsFactory<?> factory) {
         DsType dsType = DsType.getDsType(field);
-        if (field.isAnnotationPresent(DsExtra.class)) {
-            Class<?> type = field.getType();
-            DsAdapter adapter = new DsExAdapter(type);
-            factory.addAdapter(type, adapter);
-            return new DsField(field, dsType, adapter);
-        } else if (dsType == DsType.Extra) {// extra type
+        if (dsType == DsType.Extra) {// extra type
             Class<?> type = field.getType();
             DsAdapter adapter = factory.getAdapter(type);
             if (adapter == null) {// not defined

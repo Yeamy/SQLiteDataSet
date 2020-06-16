@@ -2,11 +2,11 @@ SQLiteDataSet
 ===================================
 English | [中文](README-CN.md)
 
-This project is a simple tools to deserialize SQLite data to Java Bean on **Android**.
+This project is a simple tools to deserialize SQLite data to Java Bean.
 
 For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
-### 1. How to use it
+### 1. Use DsReader
 First, create a Java Bean
 
 ```java
@@ -18,7 +18,7 @@ public class Fruit {
     public String name;      // the column in database is "FruitName"
     
     @DsIgnore
-    public String owner;     // ignore this field
+    public String owner;     //  ignore this field
 
     ...
 }
@@ -32,10 +32,10 @@ String sql = ...;                                      // the query sql
 Fruit apple = DsReader.read(db, sql, Fruit.class);     // read one
 ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ```
-OK, that's done, so easy.
+Ok, that's done, easy and fast;
 
 ### 2. Extra Type
-To deserialize multiple columns into one field, just modify the Bean.
+To deserialize multiple columns in the same row of cursor into one field.
 
 For example, to package *image* and *color* into the same field called *skin*, do like this:
 
@@ -50,10 +50,7 @@ public class Skin {
 public class Fruit {
     ...
 
-    // public Skin skin; // NOTICE：no DsColumn annotation, and there cannot be a column with the same name as the field
-
-    @DsExtra
-    public Skin skin;    // Another way：with DsExtra annotation, and no need to care about the field name
+    public Skin skin; // NOTICE：no annotation DsColumn, and there cannot be a column with the same name as the field
 }
 
 ```
