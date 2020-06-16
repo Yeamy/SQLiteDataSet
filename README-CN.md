@@ -2,7 +2,7 @@ SQLiteDataSet
 ===================================
 [English](README.md) | 中文
 
-这个项目是一个简单的数据库读取工具，将SQLite中的数据反序列生成对象集。
+这个项目是一个简单的Android SQLite读取工具，将数据库中的数据反序列生成对象集。
 
 使用 Java ResultSet 可以查看 [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
@@ -12,13 +12,13 @@ SQLiteDataSet
 ```java
 public class Fruit {
 
-    public String num;       // 列名与参数名相同
+    public String num;       // 列名与成员变量名相同
 
     @DsColumn("FruitName")
-    public String name;      // 列名与参数名不同，声明此参数对应列名为Name
+    public String name;      // 列名与成员变量名不同，声明对应列名为FruitName
     
     @DsIgnore
-    public String owner;     // 声明此参数不读取
+    public String owner;     // 声明此成员变量不读取
 
     ...
 }
@@ -34,10 +34,10 @@ ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ```
 
 
-### 2. 扩展对象参数
-要将同一行数据的多个列解析到同一对象参数内。
+### 2. 打包成员变量
+要将多个列解析到同一成员变量内，只需要修改Bean类。
 
-假设要将*Fruit*的*image*跟*color*两列存放在名为*skin*的参数内，可以如下操作：
+假设要将*Fruit*的*image*跟*color*两列存放在名为*skin*的成员变量内，可以如下操作：
 
 ```java
 public class Skin {
@@ -50,11 +50,14 @@ public class Skin {
 public class Fruit {
     ...
 
-    public Skin skin; // 注意：参数不能声明DsColumn，参数名不能与列名重复
+    // public Skin skin; // 方法一、不声明DsColumn，变量名不能与列名相同
+
+    @DsExtra
+    public Skin skin;    // 方法二、声明DsExtra，变量名不用害怕与列名重复
 }
 
 ```
-### 3. 自定义类型参数
+### 3. 自定义类型
     
 ```java
 public class Fruit {
@@ -74,11 +77,11 @@ DsAdapter adapter = new DsAdapter() {
      * @param t
      *           基础类型的成员变量已读取，可以直接使用
      * @param field
-     *           对应需要读取的参数，使用field.getName()区分
+     *           对应需要读取的成员变量，使用field.getName()区分
      * @param cursor
      *           数据库搜索结果
      * @param columnIndex
-     *           对应参数在rs中对应的位置
+     *           成员变量在cursor中对应的列的位置
      */
     @Override
     public void read(Object t, Field field, Cursor cursor, int columnIndex)
