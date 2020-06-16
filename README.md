@@ -2,11 +2,11 @@ SQLiteDataSet
 ===================================
 English | [中文](README-CN.md)
 
-This project is a simple tools to deserialize SQLite data to Java Bean.
+This project is a simple tools to deserialize SQLite data to Java Bean on **Android**.
 
 For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
-### 1. Use DsReader
+### 1. How to use it
 First, create a Java Bean
 
 ```java
@@ -18,7 +18,7 @@ public class Fruit {
     public String name;      // the column in database is "FruitName"
     
     @DsIgnore
-    public String owner;     //  ignore this field
+    public String owner;     // ignore this field
 
     ...
 }
@@ -32,10 +32,12 @@ String sql = ...;                                      // the query sql
 Fruit apple = DsReader.read(db, sql, Fruit.class);     // read one
 ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ```
-Ok, that's done, easy and fast;
+OK, that's done, so easy.
 
-### 2. Extra Type
-To deserialize multiple columns in the same row of cursor into one field.
+NOTICE: field cannot be deserialize if corresponding column cannot be found.
+
+### 2. Pocket Field
+To deserialize multiple columns into one field, just modify the Bean.
 
 For example, to package *image* and *color* into the same field called *skin*, do like this:
 
@@ -50,7 +52,7 @@ public class Skin {
 public class Fruit {
     ...
 
-    public Skin skin; // NOTICE：no annotation DsColumn, and there cannot be a column with the same name as the field
+    public Skin skin; // NOTICE: not base type, no DsColumn nor DsIgnore would be treated as Pocket Field
 }
 
 ```
@@ -65,7 +67,7 @@ public class Fruit {
 }
 
 ```
-Using `DsFactory` and `DsAdapter` to deserialize custom type field.
+deserialize custom type field with `DsFactory` and `DsAdapter`.
 
 ```java
 
