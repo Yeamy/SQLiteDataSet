@@ -403,6 +403,72 @@ public class DsReader {
     }
 
     /**
+     * read the first row as map
+     *
+     * @param db  the database to read
+     * @param sql the query sql statement
+     * @return the row data in a map or null if no result
+     */
+    public static HashMap<String, String> read(SQLiteDatabase db, String sql) {
+        return read(db, sql, new HashMap<>());
+    }
+
+    /**
+     * read the first row as map
+     *
+     * @param db  the database to read
+     * @param sql the query sql statement
+     * @param out given map to receive row data
+     * @return the given map with row data or null if no result
+     */
+    public static <T extends Map<String, String>> T read(SQLiteDatabase db, String sql, T out) {
+        try (Cursor cursor = db.rawQuery(sql, null)) {
+            if (cursor.moveToNext()) {
+                String[] names = cursor.getColumnNames();
+                for (int i = 0; i < names.length; i++) {
+                    out.put(names[i], cursor.getString(i));
+                }
+                return out;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * read rows as map into the given list
+     *
+     * @param db  the database to read
+     * @param sql the query sql statement
+     * @return rows data in a list, empty if no result
+     */
+    public static ArrayList<Map<String, String>> readArray(SQLiteDatabase db, String sql) {
+        ArrayList<Map<String, String>> list = new ArrayList<>();
+        readArray(db, sql, list);
+        return list;
+    }
+
+    /**
+     * read rows as map into the given list
+     *
+     * @param db  the database to read
+     * @param sql the query sql statement
+     * @param list the list to accept rows data
+     */
+    public static void readArray(SQLiteDatabase db, String sql, List<Map<String, String>> list) {
+        try (Cursor cursor = db.rawQuery(sql, null)) {
+            String[] names = null;
+            Map<String, String> map;
+            while (cursor.moveToNext()) {
+                if (names == null) names = cursor.getColumnNames();
+                list.add(map = new HashMap<>());
+                for (int i = 0; i < names.length; i++) {
+                    map.put(names[i], cursor.getString(i));
+                }
+            }
+        }
+    }
+
+    /**
      * read the first row as the given type
      *
      * @param db   the database to read
