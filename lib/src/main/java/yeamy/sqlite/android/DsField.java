@@ -71,7 +71,7 @@ class DsField {
 
     void read(Cursor cursor, Object t) throws InstantiationException, IllegalAccessException {
         if (adapter != null) {
-            adapter.read(t, field, cursor, columnIndex);
+            field.set(adapter.read(field, cursor, columnIndex), t);
             return;
         }
         switch (dsType) {

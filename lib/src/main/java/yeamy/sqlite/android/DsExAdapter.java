@@ -14,9 +14,9 @@ class DsExAdapter implements DsAdapter {
     }
 
     @Override
-    public void read(Object t, Field field, Cursor cursor, int columnIndex)
+    public Object read(Field field, Cursor cursor, int columnIndex)
             throws InstantiationException, IllegalAccessException {
-        field.set(t, factory.read(cursor, list));
+        return factory.read(cursor, list);
     }
 
     boolean findColumnIndex(Cursor cursor) {
