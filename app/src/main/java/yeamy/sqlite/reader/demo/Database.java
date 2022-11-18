@@ -1,4 +1,4 @@
-package yeamy.sqlit.reader.demo;
+package yeamy.sqlite.reader.demo;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
