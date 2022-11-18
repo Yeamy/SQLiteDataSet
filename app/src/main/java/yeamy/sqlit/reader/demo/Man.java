@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds.demo;
+package yeamy.sqlit.reader.demo;
 
 import androidx.annotation.NonNull;
 

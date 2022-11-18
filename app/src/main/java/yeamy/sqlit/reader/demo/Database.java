@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds.demo;
+package yeamy.sqlit.reader.demo;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
-import com.yeamy.sqlite.ds.DsReader;
+import yeamy.sqlite.android.DsReader;
 
 public class Database extends SQLiteOpenHelper {
 

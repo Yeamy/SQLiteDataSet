@@ -18,7 +18,7 @@ public class Fruit {
     public String name;      // 列名与成员变量名不同，声明对应列名为FruitName
     
     @DsIgnore
-    public String owner;     // 声明此成员变量不读取
+    public String owner;     // 注解设置该成员变量不被读取
 
     ...
 }
@@ -100,7 +100,7 @@ factory.readArray(list, cursor);                           // 读取多个
 ```
 
 ### 4. DsObserver
-如果导入DsObserver接口，解析结束后会调用onDsFinish()方法，可以在此方法修改数据。
+如果引入DsObserver接口，解析结束后会调用onDsFinish()方法，可以在此方法修改数据。
 
 ```java
 public class Vegetables implements DsObserver {

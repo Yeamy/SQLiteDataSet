@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sql;
 
 import java.lang.reflect.Field;
 
@@ -21,7 +21,7 @@ public enum DsType {
     Extra(Object.class), //
 	;
 
-	private Class<?> type;
+	private final Class<?> type;
 
 	DsType(Class<?> type) {
 		this.type = type;

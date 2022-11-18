@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sqlite.android;
 
 import android.database.Cursor;
 

@@ -1,11 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    namespace 'yeamy.sql.android'
+    compileSdk 33
+
     defaultConfig {
-        applicationId "com.yeamy.sqlite.ds.demo"
-        minSdkVersion 21
-        targetSdkVersion 29
+        applicationId "yeamy.sqlit.reader.demo"
+        minSdk 21
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 //        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -21,5 +23,5 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':lib')
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:1.5.0'
 }

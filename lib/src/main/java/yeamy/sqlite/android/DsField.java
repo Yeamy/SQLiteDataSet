@@ -1,14 +1,17 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sqlite.android;
 
 import android.database.Cursor;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
+import yeamy.sql.DsColumn;
+import yeamy.sql.DsType;
+
 class DsField {
-    private Field field;
-    private DsType dsType;
-    private DsAdapter adapter;
+    private final Field field;
+    private final DsType dsType;
+    private final DsAdapter adapter;
     transient int columnIndex;
 
     static DsField get(Field field, DsFactory<?> factory) {

@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sql;
 
 public interface DsObserver {
 

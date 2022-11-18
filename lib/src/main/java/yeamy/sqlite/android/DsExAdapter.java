@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sqlite.android;
 
 import android.database.Cursor;
 
@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 class DsExAdapter implements DsAdapter {
-    private DsFactory<?> factory;
+    private final DsFactory<?> factory;
     private transient List<DsField> list;
 
     DsExAdapter(Class<?> clz) {

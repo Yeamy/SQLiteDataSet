@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sqlite.android;
 
 import android.database.Cursor;
 
@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import yeamy.sql.DsIgnore;
+import yeamy.sql.DsObserver;
 
 public class DsFactory<T> {
     public static boolean DEBUG = false;
@@ -106,7 +109,10 @@ public class DsFactory<T> {
      */
     public void readArray(List<T> out, Cursor cursor)
             throws InstantiationException, IllegalAccessException {
-        readArray(out, cursor, 200);
+        List<DsField> list = findColumnIndex(cursor);
+        while (cursor.moveToNext()) {
+            out.add(read(cursor, list));
+        }
     }
 
 }

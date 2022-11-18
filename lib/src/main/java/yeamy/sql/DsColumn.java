@@ -1,4 +1,4 @@
-package com.yeamy.sqlite.ds;
+package yeamy.sql;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,5 +8,6 @@ import static java.lang.annotation.ElementType.FIELD;
 
 @Target({ FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DsIgnore {
+public @interface DsColumn {
+	String value();
 }
