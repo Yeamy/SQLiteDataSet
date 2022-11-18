@@ -11,17 +11,25 @@ import java.util.List;
 import yeamy.sql.DsIgnore;
 import yeamy.sql.DsObserver;
 
+/**
+ * The factory to generate java bean,
+ * add custom types' adapter to create fields value.
+ * You can cache the factory to avoid too much reflection.
+ */
 public class DsFactory<T> {
     public static boolean DEBUG = false;
 
     private HashMap<Class<?>, DsAdapter> map;
-    private List<DsField> fields;
-    private Class<T> clz;
+    private final List<DsField> fields;
+    private final Class<T> type;
 
-    public DsFactory(Class<T> clz) {
-        this.clz = clz;
+    /**
+     * @param type type to generate
+     */
+    public DsFactory(Class<T> type) {
+        this.type = type;
         LinkedList<DsField> list = new LinkedList<>();
-        Field[] fields = clz.getFields();
+        Field[] fields = type.getFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(DsIgnore.class)) {
                 continue;
@@ -38,24 +46,34 @@ public class DsFactory<T> {
         this.fields = list;
     }
 
-    public void addAdapter(Class<?> clz, DsAdapter adapter) {
+    /**
+     * add a field type adapter
+     * @param fieldType type of field
+     * @param adapter adapter to read field
+     */
+    public void addAdapter(Class<?> fieldType, DsAdapter adapter) {
         if (map == null) {
             map = new HashMap<>();
         }
-        map.put(clz, adapter);
+        map.put(fieldType, adapter);
     }
 
-    public DsAdapter getAdapter(Class<?> clz) {
+    /**
+     * get a field type adapter
+     * @param fieldType type of field
+     * @return  adapter to read field
+     */
+    public DsAdapter getAdapter(Class<?> fieldType) {
         if (map == null) {
             return null;
         }
         while (true) {
-            if (clz == null) {
+            if (fieldType == null) {
                 return null;
             }
-            DsAdapter adapter = map.get(clz);
+            DsAdapter adapter = map.get(fieldType);
             if (adapter == null) {
-                clz = clz.getSuperclass();
+                fieldType = fieldType.getSuperclass();
             } else {
                 return adapter;
             }
@@ -75,7 +93,7 @@ public class DsFactory<T> {
 
     T read(Cursor cursor, List<DsField> list)
             throws InstantiationException, IllegalAccessException {
-        T t = clz.newInstance();
+        T t = type.newInstance();
         for (DsField f : list) {
             f.read(cursor, t);
         }
@@ -104,9 +122,6 @@ public class DsFactory<T> {
         }
     }
 
-    /**
-     * default read top 200
-     */
     public void readArray(List<T> out, Cursor cursor)
             throws InstantiationException, IllegalAccessException {
         List<DsField> list = findColumnIndex(cursor);

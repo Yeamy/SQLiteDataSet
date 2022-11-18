@@ -18,7 +18,7 @@ public enum DsType {
 	BigDecimal(java.math.BigDecimal.class), //
 	String(String.class), //
     Blob(byte[].class),
-    Extra(Object.class), //
+    Extra(Object.class), // custom type without DsColumn and DsIgnore
 	;
 
 	private final Class<?> type;

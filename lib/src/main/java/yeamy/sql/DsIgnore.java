@@ -6,6 +6,10 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 
+/**
+ * Annotation this field is not a column and it will be skip while reading.
+ * @see DsColumn
+ */
 @Target({ FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DsIgnore {
