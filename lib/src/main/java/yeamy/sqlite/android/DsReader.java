@@ -3,6 +3,9 @@ package yeamy.sqlite.android;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +45,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as boolean or null if no query result
      */
+    @Nullable
     public static Boolean getBoolean(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -58,6 +62,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as boolean in an array, empty array if no query result
      */
+    @NonNull
     public static boolean[] getBooleanArray(SQLiteDatabase db, String sql) {
         BooleanArray list = new BooleanArray();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -92,6 +97,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as short or null if no query result
      */
+    @Nullable
     public static Short getShort(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -108,6 +114,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as short in an array, empty array if no query result
      */
+    @NonNull
     public static short[] getShortArray(SQLiteDatabase db, String sql) {
         ShortArray list = new ShortArray();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -142,6 +149,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as int in an array, empty array if no query result
      */
+    @NonNull
     public static int[] getIntArray(SQLiteDatabase db, String sql) {
         IntArray list = new IntArray();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -176,6 +184,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as long or null if no query result
      */
+    @Nullable
     public static Long getLong(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -192,6 +201,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as long in an array, empty array if no query result
      */
+    @NonNull
     public static long[] getLongArray(SQLiteDatabase db, String sql) {
         LongArray list = new LongArray();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -226,6 +236,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as float or null if no query result
      */
+    @Nullable
     public static Float getFloat(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -242,6 +253,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as float in an array, empty array if no query result
      */
+    @NonNull
     public static float[] getFloatArray(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             FloatArray list = new FloatArray();
@@ -276,6 +288,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as double or null if no query result
      */
+    @Nullable
     public static Double getDouble(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -292,6 +305,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as double in an array, empty array if no query result
      */
+    @NonNull
     public static double[] getDoubleArray(SQLiteDatabase db, String sql) {
         DoubleArray list = new DoubleArray();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -326,6 +340,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as decimal or null if no query result
      */
+    @Nullable
     public static BigDecimal getBigDecimal(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -342,6 +357,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as decimal in an array, empty array if no query result
      */
+    @NonNull
     public static ArrayList<BigDecimal> getBigDecimalArray(SQLiteDatabase db, String sql) {
         ArrayList<BigDecimal> list = new ArrayList<>();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -376,6 +392,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return value as string or null if no query result
      */
+    @Nullable
     public static String getString(SQLiteDatabase db, String sql) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -392,6 +409,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return values as string in an array, empty array if no query result
      */
+    @NonNull
     public static ArrayList<String> getStringArray(SQLiteDatabase db, String sql) {
         ArrayList<String> list = new ArrayList<>();
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -409,6 +427,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return the row data in a map or null if no result
      */
+    @Nullable
     public static HashMap<String, String> read(SQLiteDatabase db, String sql) {
         return read(db, sql, new HashMap<>());
     }
@@ -421,6 +440,7 @@ public class DsReader {
      * @param out given map to receive row data
      * @return the given map with row data or null if no result
      */
+    @Nullable
     public static <T extends Map<String, String>> T read(SQLiteDatabase db, String sql, T out) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             if (cursor.moveToNext()) {
@@ -441,6 +461,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @return rows data in a list, empty if no result
      */
+    @NonNull
     public static ArrayList<Map<String, String>> readArray(SQLiteDatabase db, String sql) {
         ArrayList<Map<String, String>> list = new ArrayList<>();
         readArray(db, sql, list);
@@ -454,6 +475,7 @@ public class DsReader {
      * @param sql the query sql statement
      * @param list the list to accept rows data
      */
+    @NonNull
     public static void readArray(SQLiteDatabase db, String sql, List<Map<String, String>> list) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             String[] names = null;
@@ -476,6 +498,7 @@ public class DsReader {
      * @param type given type to return
      * @return the row data as object, null if no result
      */
+    @Nullable
     public static <T> T read(SQLiteDatabase db, String sql, Class<T> type)
             throws InstantiationException, IllegalAccessException {
         return read(db, sql, new DsFactory<>(type), null);
@@ -490,6 +513,7 @@ public class DsReader {
      * @param fallback if no result
      * @return the row data as object or return fallback if no result
      */
+    @Nullable
     public static <T> T read(SQLiteDatabase db, String sql, DsFactory<T> factory, T fallback)
             throws InstantiationException, IllegalAccessException {
         try (Cursor cursor = db.rawQuery(sql, null)) {
@@ -507,6 +531,7 @@ public class DsReader {
      * @param type given type to return
      * @return rows data as object in a list, empty if no result
      */
+    @NonNull
     public static <T> ArrayList<T> readArray(SQLiteDatabase db, String sql, Class<T> type)
             throws InstantiationException, IllegalAccessException {
         ArrayList<T> out = new ArrayList<>();
@@ -551,6 +576,7 @@ public class DsReader {
      * @param limit limit how many rows to read
      * @return rows data as object in a list, empty if no result
      */
+    @NonNull
     public static <T> ArrayList<T> readArray(SQLiteDatabase db, String sql, Class<T> type, int limit)
             throws InstantiationException, IllegalAccessException {
         ArrayList<T> out = new ArrayList<>();
