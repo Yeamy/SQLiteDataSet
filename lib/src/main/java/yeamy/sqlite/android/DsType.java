@@ -1,7 +1,10 @@
-package yeamy.sql;
+package yeamy.sqlite.android;
 
 import java.lang.reflect.Field;
 
+/**
+ * All support base type
+ */
 public enum DsType {
 	_int(int.class), //
 	_long(long.class), //

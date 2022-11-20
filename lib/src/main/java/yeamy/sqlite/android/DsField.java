@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
 import yeamy.sql.DsColumn;
-import yeamy.sql.DsType;
 
 class DsField {
     private final Field field;
@@ -50,23 +49,30 @@ class DsField {
             DsExAdapter exAdapter = (DsExAdapter) adapter;
             return exAdapter.findColumnIndex(cursor);
         }
-        DsColumn column = field.getAnnotation(DsColumn.class);
-        String label = (column == null) ? null : column.value();
-        String columnLabel;
-        if (label != null && label.length() > 0) {
-            columnLabel = label;
+        DsColumn ann = field.getAnnotation(DsColumn.class);
+        if (ann != null && ann.value() != null && ann.value().length() > 0) {
+            columnIndex = cursor.getColumnIndex(ann.value());
         } else {
-            columnLabel = field.getName();
-        }
-        try {
-            columnIndex = cursor.getColumnIndex(columnLabel);
-            return true;
-        } catch (Exception e) {
-            if (DsFactory.DEBUG) {
-                e.printStackTrace();
+            columnIndex = cursor.getColumnIndex(field.getName());
+            if (columnIndex == -1) {
+                columnIndex = cursor.getColumnIndex(name2underline(field.getName()));
             }
-            return false;
         }
+        return columnIndex != -1;
+    }
+
+    private static String name2underline(String name) {
+        StringBuilder sb = new StringBuilder(name);
+        for (int i = 0; i < sb.length(); i++) {
+            char c = sb.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                sb.setCharAt(i, (char) (c + 32));
+                sb.insert(i, '_');
+                i++;
+            }
+        }
+
+        return sb.toString();
     }
 
     void read(Cursor cursor, Object t) throws InstantiationException, IllegalAccessException {
