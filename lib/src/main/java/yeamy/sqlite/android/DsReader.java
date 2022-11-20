@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import yeamy.utils.array.ShortArray;
 public class DsReader {
 
     /**
-     * Returns the value of first row first column as boolean
+     * Return the value of the first column of the first row as boolean
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -39,7 +40,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as boolean
+     * Return the value of the first column of the first row as boolean
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -56,7 +57,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as boolean
+     * Return the values of the first column as boolean
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -74,7 +75,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as short
+     * Return the value of the first column of the first row as short
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -91,7 +92,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as short
+     * Return the value of the first column of the first row as short
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -108,7 +109,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as short
+     * Return the values of the first column as short
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -126,7 +127,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as int
+     * Return the value of the first column of the first row as int
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -143,7 +144,24 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as int
+     * Return the value of the first column of the first row as int
+     *
+     * @param db  the database to read
+     * @param sql the query sql statement
+     * @return value as int or null if no query result
+     */
+    @Nullable
+    public static Integer getInt(SQLiteDatabase db, String sql) {
+        try (Cursor cursor = db.rawQuery(sql, null)) {
+            if (cursor.moveToNext()) {
+                return cursor.getInt(0);
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Return the values of the first column as int
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -161,7 +179,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as long
+     * Return the value of the first column of the first row as long
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -178,7 +196,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as long
+     * Return the value of the first column of the first row as long
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -195,7 +213,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as long
+     * Return the values of the first column as long
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -213,7 +231,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as float
+     * Return the value of the first column of the first row as float
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -230,7 +248,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as float
+     * Return the value of the first column of the first row as float
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -247,7 +265,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as float
+     * Return the values of the first column as float
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -265,7 +283,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as double
+     * Return the value of the first column of the first row as double
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -282,7 +300,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as double
+     * Return the value of the first column of the first row as double
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -299,7 +317,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as double
+     * Return the values of the first column as double
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -317,7 +335,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as decimal
+     * Return the value of the first column of the first row as decimal
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -334,7 +352,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as decimal
+     * Return the value of the first column of the first row as decimal
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -342,16 +360,11 @@ public class DsReader {
      */
     @Nullable
     public static BigDecimal getBigDecimal(SQLiteDatabase db, String sql) {
-        try (Cursor cursor = db.rawQuery(sql, null)) {
-            if (cursor.moveToNext()) {
-                return DsField.getBigDecimal(cursor, 0);
-            }
-            return null;
-        }
+        return getBigDecimal(db, sql, null);
     }
 
     /**
-     * Returns the value as decimal
+     * Return the values of the first column as decimal
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -369,7 +382,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as string
+     * Return the value of the first column of the first row as string
      *
      * @param db       the database to read
      * @param sql      the query sql statement
@@ -386,7 +399,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value of first row first column as string
+     * Return the value of the first column of the first row as string
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -403,7 +416,7 @@ public class DsReader {
     }
 
     /**
-     * Returns the value as string
+     * Return the values of the first column as string
      *
      * @param db  the database to read
      * @param sql the query sql statement
@@ -412,11 +425,22 @@ public class DsReader {
     @NonNull
     public static ArrayList<String> getStringArray(SQLiteDatabase db, String sql) {
         ArrayList<String> list = new ArrayList<>();
+        getStringArray(db, sql, list);
+        return list;
+    }
+
+    /**
+     * Return the values of the first column as string int the given collection
+     *
+     * @param db  the database to read
+     * @param sql the query sql statement
+     * @param out collection to accept data
+     */
+    public static void getStringArray(SQLiteDatabase db, String sql, Collection<String> out) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             while (cursor.moveToNext()) {
-                list.add(cursor.getString(0));
+                out.add(cursor.getString(0));
             }
-            return list;
         }
     }
 
@@ -469,20 +493,19 @@ public class DsReader {
     }
 
     /**
-     * read rows as map into the given list
+     * read rows as map into the given collection
      *
-     * @param db  the database to read
-     * @param sql the query sql statement
-     * @param list the list to accept rows data
+     * @param db   the database to read
+     * @param sql  the query sql statement
+     * @param collection the collection to accept rows data
      */
-    @NonNull
-    public static void readArray(SQLiteDatabase db, String sql, List<Map<String, String>> list) {
+    public static void readArray(SQLiteDatabase db, String sql, Collection<Map<String, String>> collection) {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             String[] names = null;
             Map<String, String> map;
             while (cursor.moveToNext()) {
                 if (names == null) names = cursor.getColumnNames();
-                list.add(map = new HashMap<>());
+                collection.add(map = new HashMap<>());
                 for (int i = 0; i < names.length; i++) {
                     map.put(names[i], cursor.getString(i));
                 }
@@ -591,8 +614,9 @@ public class DsReader {
      * @param sql     the query sql statement
      * @param factory factory of given type
      * @param limit   limit how many rows to read
+     * @param out     collection to accept data
      */
-    public static <T> void readArray(SQLiteDatabase db, String sql, DsFactory<T> factory, int limit, List<T> out)
+    public static <T> void readArray(SQLiteDatabase db, String sql, DsFactory<T> factory, int limit, Collection<T> out)
             throws InstantiationException, IllegalAccessException {
         try (Cursor cursor = db.rawQuery(sql, null)) {
             factory.readArray(out, cursor, limit);

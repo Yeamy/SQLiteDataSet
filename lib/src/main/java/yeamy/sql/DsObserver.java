@@ -6,7 +6,7 @@ package yeamy.sql;
 public interface DsObserver {
 
     /**
-     * this method will be invoke after the row read (every field is ready)
+     * this method will be invoked after the row read (every field is ready)
      */
 	void onDsFinish();
 }

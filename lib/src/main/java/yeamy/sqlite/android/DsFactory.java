@@ -4,6 +4,7 @@ import android.database.Cursor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,6 @@ import yeamy.sql.DsObserver;
  * You can cache the factory to avoid too much reflection.
  */
 public class DsFactory<T> {
-    public static boolean DEBUG = false;
 
     private HashMap<Class<?>, DsAdapter> map;
     private final List<DsField> fields;
@@ -111,7 +111,7 @@ public class DsFactory<T> {
         return null;
     }
 
-    public void readArray(List<T> out, Cursor cursor, int limit)
+    public void readArray(Collection<T> out, Cursor cursor, int limit)
             throws InstantiationException, IllegalAccessException {
         List<DsField> list = findColumnIndex(cursor);
         while (cursor.moveToNext()) {

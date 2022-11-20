@@ -17,9 +17,11 @@ public class Fruit {
     @DsColumn("Name")
     public String name;      // 声明此参数对应列名为Name
 
+    public String fullName;  // 列名可以是 "fullName" 或者 "full_name"
+
     @DsIgnore
     public String count;     // 声明此参数不读取
-
+    
     public FruitType type;   // 不添加此声明，取参数名做列名，此参数为自定义类型（见下文 DsAdapter）
 
     public Skin skin;        // 没有声明DsColumn的参数当做扩展参数处理
@@ -32,9 +34,9 @@ public class Fruit {
 
 ```java
 Statement stmt = ...;                                 // 数据源
-        String sql = "SELECT ...";                            // 筛选的SQL语句
-        Fruit apple = DsReader.read(stmt, sql, Fruit.class);
-        ArrayList<Fruit> list = r DsReader.readArray(stmt, sql, Fruit.class);
+String sql = "SELECT ...";                            // 筛选的SQL语句
+Fruit apple = DsReader.read(stmt, sql, Fruit.class);
+ArrayList<Fruit> list = r DsReader.readArray(stmt, sql, Fruit.class);
 ```
 
 ### 3. DsFactory\<T> 和 DsAdapter
@@ -43,35 +45,35 @@ Statement stmt = ...;                                 // 数据源
 ```java
 java.sql.ResultSet rs = ...;                           // 数据来源
 
-        DsFactory<Fruit> factory = new DsFactory(Fruit.class); // 实例化工厂
+DsFactory<Fruit> factory = new DsFactory(Fruit.class); // 实例化工厂
 
-        DsAdapter adapter = new DsAdapter() {
+DsAdapter adapter = new DsAdapter() {
 
-/**
- * @param t
- *           基础类型的成员变量已读取，可以直接使用
- * @param field
- *           对应需要读取的参数，使用field.getName()区分
- * @param rs
- *           数据库搜索结果
- * @param columnIndex
- *           对应参数在rs中对应的位置
- */
-@Override
-public void read(Object t, Field field, ResultSet rs, int columnIndex) throws SQLException, InstantiationException, IllegalAccessException {
+    /**
+     * @param t
+     *           基础类型的成员变量已读取，可以直接使用
+     * @param field
+     *           对应需要读取的参数，使用field.getName()区分
+     * @param rs
+     *           数据库搜索结果
+     * @param columnIndex
+     *           对应参数在rs中对应的位置
+     */
+    @Override
+    public void read(Object t, Field field, ResultSet rs, int columnIndex) throws SQLException, InstantiationException, IllegalAccessException {
         FruitType type = new FruitType(....);
         field.set(t, type);
-        }
-        };
+    }
+};
 
-        factory.addAdapter(Type.class, adapter);               // 添加自定义类型
+factory.addAdapter(Type.class, adapter);               // 添加自定义类型
 
-        Fruit apple = factory.read(rs);                        // 读取单个
+Fruit apple = factory.read(rs);                        // 读取单个
 
-        factory.readArray(list, rs);                           // 读取多个
+factory.readArray(list, rs);                           // 读取多个
 
-        List<Fruit> list = new ArrayList<Fruit>();
-        factory.readArray(list, rs);                           // 自定义list
+List<Fruit> list = new ArrayList<Fruit>();
+factory.readArray(list, rs);                           // 自定义list
 ```
 
 
