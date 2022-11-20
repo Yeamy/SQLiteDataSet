@@ -6,101 +6,77 @@ SQLiteDataSet
 
 使用 Java ResultSet 可以查看 [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
-### 1. 直接读取
-首先，创建需要解析的Bean类，
+```groovy
+    implementation 'io.github.yeamy:sqlitedataset:1.2'
+```
 
+### 1. Bean类声明
 ```java
 public class Fruit {
 
-    public String num;       // 列名与成员变量名相同
+    @DsColumn("Name")
+    public String name;      // 声明此参数对应列名为Name
 
-    @DsColumn("FruitName")
-    public String name;      // 列名与成员变量名不同，声明对应列名为FruitName
-    
     @DsIgnore
-    public String owner;     // 注解设置该成员变量不被读取
+    public String count;     // 声明此参数不读取
 
-    ...
+    public FruitType type;   // 不添加此声明，取参数名做列名，此参数为自定义类型（见下文 DsAdapter）
+
+    public Skin skin;        // 没有声明DsColumn的参数当做扩展参数处理
 }
 
 ```
-接着，使用DsReader快速读取
+
+### 2. DsReader
+一般情况使用DsReader工具类快速读取已足矣
 
 ```java
-SQLiteDatabase db = ...;                               // 数据库
-String sql = ...;                                      // 筛选的SQL语句
-Fruit apple = DsReader.read(db, sql, Fruit.class);     // 只读取一个
-ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
+Statement stmt = ...;                                 // 数据源
+        String sql = "SELECT ...";                            // 筛选的SQL语句
+        Fruit apple = DsReader.read(stmt, sql, Fruit.class);
+        ArrayList<Fruit> list = r DsReader.readArray(stmt, sql, Fruit.class);
 ```
-注意：找不到对应列的成员变量将无法被解析
 
-### 2. 扩展成员变量
-要将多个列解析到同一成员变量内（以下称为“扩展成员变量”），只需要修改Bean类。
-
-假设要将*Fruit*的*image*跟*color*两列存放在名为*skin*的成员变量内，可以如下操作：
+### 3. DsFactory\<T> 和 DsAdapter
+使用自定义工厂类生产对象，并注册DsAdapter来扩展自定义类型。
 
 ```java
-public class Skin {
-    
-    public String image;
+java.sql.ResultSet rs = ...;                           // 数据来源
 
-    public int color;
-}
+        DsFactory<Fruit> factory = new DsFactory(Fruit.class); // 实例化工厂
 
-public class Fruit {
-    ...
+        DsAdapter adapter = new DsAdapter() {
 
-    public Skin skin; // 注意：非基本类型成员变量，不声明DsColumn或DsIgnore，均视为扩展成员变量
-}
+/**
+ * @param t
+ *           基础类型的成员变量已读取，可以直接使用
+ * @param field
+ *           对应需要读取的参数，使用field.getName()区分
+ * @param rs
+ *           数据库搜索结果
+ * @param columnIndex
+ *           对应参数在rs中对应的位置
+ */
+@Override
+public void read(Object t, Field field, ResultSet rs, int columnIndex) throws SQLException, InstantiationException, IllegalAccessException {
+        FruitType type = new FruitType(....);
+        field.set(t, type);
+        }
+        };
 
+        factory.addAdapter(Type.class, adapter);               // 添加自定义类型
+
+        Fruit apple = factory.read(rs);                        // 读取单个
+
+        factory.readArray(list, rs);                           // 读取多个
+
+        List<Fruit> list = new ArrayList<Fruit>();
+        factory.readArray(list, rs);                           // 自定义list
 ```
-### 3. 自定义类型
-    
-```java
-public class Fruit {
-    ...
 
-    public FruitType type; // FruitType为自定义类型
-}
-
-```
-    
-使用`DsFactory`，添加`DsAdapter`来实现自定义类型。
-
-```java
-DsAdapter adapter = new DsAdapter() {
-
-    /**
-     * @param t
-     *           基础类型的成员变量已读取，可以直接使用
-     * @param field
-     *           对应需要读取的成员变量，使用field.getName()区分
-     * @param cursor
-     *           数据库搜索结果
-     * @param columnIndex
-     *           成员变量在cursor中对应的列的位置
-     */
-    @Override
-    public void read(Object t, Field field, Cursor cursor, int columnIndex)
-                throws InstantiationException, IllegalAccessException {
-        FruitType type = ...;
-        // field.set(t, type);
-        Fruit f = (Fruit) t;
-        f.type = type;
-    }
-};
-
-SQLiteDatabase db = ...;                                   // 数据库
-DsFactory<Fruit> factory = new DsFactory(Fruit.class);     // 创建工厂
-factory.addAdapter(FruitType.class, adapter);              // 添加自定义类型
-Fruit apple = factory.read(cursor);                        // 读取单个
-
-List<Fruit> list = new ArrayList<Fruit>();
-factory.readArray(list, cursor);                           // 读取多个
-```
 
 ### 4. DsObserver
-如果引入DsObserver接口，解析结束后会调用onDsFinish()方法，可以在此方法修改数据。
+如果导入DsObserver接口，解析结束后会调用onDsFinish()方法，可以在此方法修改数据。
 
 ```java
 public class Vegetables implements DsObserver {
@@ -108,9 +84,58 @@ public class Vegetables implements DsObserver {
     @DsColumn("Name")
     public String name;
     ...
-
     @Override
     public void onDsFinish(){}
+}
+
+```
+
+### 5. 扩展对象
+来自ResultSet的同一行数据可以被解析到同一实例内。
+
+数据表:
+
+|UserName|Province|CityName|...|
+|:-:|:-:|:-:|:-:|
+|Nike|Guangdong|Shantou|...|
+|...|
+
+通常会采用如下数据类：
+
+```java
+public class User {
+    @DsColumn("UserName")
+    public String name;
+
+    @DsColumn("Province")
+    public String province;
+
+    @DsColumn("CityName")
+    public String city;
+    ...
+}
+
+```
+
+为了将province和city封装到同个参数内，可以使用如下方式：
+
+```java
+public class User {
+    @DsColumn("UserName")
+    public String name;
+    ...
+    // 注意：参数不能声明DsColumn，参数名不能与列名重复，
+    // 否则只能使用DsAdapter来解析
+    public City location;
+}
+
+public class City {
+    @DsColumn("Province")
+    public String province;
+
+    @DsColumn("CityName")
+    public String city;
+    ...
 }
 
 ```

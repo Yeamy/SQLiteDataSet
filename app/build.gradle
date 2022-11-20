@@ -22,6 +22,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':lib')
+    implementation 'io.github.yeamy:sqlitedataset:1.2'
     implementation 'androidx.annotation:annotation:1.5.0'
 }

@@ -33,6 +33,7 @@ public class Database extends SQLiteOpenHelper {
 
         try {
             Man man = DsReader.read(getReadableDatabase(), sql, Man.class);
+            assert man != null;
             return man.toString();
         } catch (Exception e) {
             e.printStackTrace();

@@ -33,3 +33,93 @@ dependencies {
 //    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
 //    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
+
+apply plugin: 'maven-publish'
+
+task generateSourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+task generateMergeJar(type: Jar, dependsOn: ['assembleRelease']) {
+    group = 'jar'
+    from(project.zipTree('build/intermediates/aar_main_jar/release/classes.jar'))
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    configurations.implementation.canBeResolved = true // default false case error
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator)) + configurations.implementation
+}
+javadoc {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        links "http://docs.oracle.com/javase/8/docs/api"
+    }
+}
+task generateJavadoc(type: Jar) {
+    group = 'jar'
+    archiveClassifier.set('javadoc')
+    from "$rootDir/javadoc"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'io.github.yeamy'
+            artifactId 'sqlitedataset'
+            version '1.2'
+            pom {
+                name = 'sqlitedataset'
+                description = 'SQLite data reader for Android'
+                url = 'https://github.com/Yeamy/SQLiteDataSet'
+                inceptionYear = '2022'
+                scm {
+                    url = 'https://github.com/Yeamy/SQLiteDataSet'
+                    connection = 'scm:git@https://github.com/Yeamy/SQLiteDataSet.git'
+                    developerConnection = 'scm:git@https://github.com/Yeamy/SQLiteDataSet.git'
+                }
+                licenses {
+                    license {
+                        name = 'GNU General Public License v3.0'
+                        url = 'https://www.gnu.org/licenses/lgpl-3.0.txt'
+                        distribution = 'repo'
+                        comments = 'A business-friendly OSS license'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yeamy0754'
+                        name = 'Yeaming'
+                        email = 'yeamy0754@hotmail.com'
+                        url = 'https://github.com/Yeamy'
+                    }
+                }
+                issueManagement {
+                    system = 'Github'
+                    url = 'https://github.com/Yeamy/SQLiteDataSet'
+                }
+            }
+            artifact generateSourceJar
+            artifact generateMergeJar
+            artifact generateJavadoc
+//            artifact  './build/outputs/aar/dialogLibs-release.aar'
+        }
+    }
+
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+apply plugin: 'signing'
+signing {
+    sign publishing.publications.maven
+}

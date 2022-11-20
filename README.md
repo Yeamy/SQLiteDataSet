@@ -6,70 +6,46 @@ This project is a simple tools to deserialize SQLite data to Java Bean on **Andr
 
 For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
-### 1. How to use it
-First, create a Java Bean
+```groovy
+    implementation 'io.github.yeamy:sqlitedataset:1.2'
+```
 
+### 1. Annotation
 ```java
 public class Fruit {
 
-    public String num;       // the column is the same with the field name
+    @DsColumn("Name")
+    public String name;      // the column in database is "Name"
 
-    @DsColumn("FruitName")
-    public String name;      // the column in database is "FruitName"
-    
+    public String fullName;  // the column in database can be "fullName" or "full_name"
+
     @DsIgnore
-    public String owner;     // ignore this field
+    public String count;     // ignore this field
 
-    ...
+    public FruitType type;   // the name of the column is the same as the field
+    // regist as custom type (see DsAdapter)
+
+    public Skin skin;        // this field no DsColumn treat as extra type
 }
 ```
 
-Second, deserialize via `DsReader`.
+### 2. DsReader
+Generally, using `DsReader` is an easy and fast way.
 
 ```java
-SQLiteDatabase db = ...;                               // the database
-String sql = ...;                                      // the query sql
-Fruit apple = DsReader.read(db, sql, Fruit.class);     // read one
-ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
-```
-OK, that's done, so easy.
-
-NOTICE: field cannot be deserialize if corresponding column cannot be found.
-
-### 2. Pocket Field
-To deserialize multiple columns into one field, just modify the Bean.
-
-For example, to package *image* and *color* into the same field called *skin*, do like this:
-
-```java
-public class Skin {
-    
-    public String image;
-    
-    public int color;
-}
-
-public class Fruit {
-    ...
-
-    public Skin skin; // NOTICE: not base type, no DsColumn nor DsIgnore would be treated as Pocket Field
-}
-
+Statement stmt = ...;                                 // the source
+String sql = "SELECT ...";                            // the sql
+Fruit apple = DsReader.read(stmt, sql, Fruit.class);  // read one
+ArrayList<Fruit> list = r DsReader.eadArray(stmt, sql, Fruit.class);
 ```
 
-### 3. Custom Type
-    
-```java
-public class Fruit {
-    ...
-
-    public FruitType type; // FruitType is the custom type
-}
-
-```
-deserialize custom type field with `DsFactory` and `DsAdapter`.
+### 3. DsFactory\<T> & DsAdapter
+In order to deserialize custom field type, you may define a `DsFactory` and register a type with `DsAdapter`.
 
 ```java
+java.sql.ResultSet rs = ...;                           // the data source
+
+DsFactory<Fruit> factory = new DsFactory(Fruit.class); // build a factory
 
 DsAdapter adapter = new DsAdapter() {
 
@@ -78,32 +54,30 @@ DsAdapter adapter = new DsAdapter() {
      *           any other base type field has been deserialized
      * @param field
      *           using field.getName() to distinguish same type.
-     * @param cursor
-     *           database query result,
+     * @param rs
+     *           jdbc select result,
      * @param columnIndex
-     *           the index of the target column in Cursor.
+     *           the index of the target column in ResultSet.
      */
     @Override
-    public void read(Object t, Field field, Cursor cursor, int columnIndex)
-                throws InstantiationException, IllegalAccessException {
-        FruitType type = ...;
-        // field.set(t, type);
-        Fruit f = (Fruit) t;
-        f.type = type;
+    public void read(Object t, Field field, ResultSet rs, int columnIndex) throws SQLException, InstantiationException, IllegalAccessException {
+        FruitType type = new FruitType(....);
+        field.set(t, type);
     }
 };
 
-SQLiteDatabase db = ...;                                   // the database
-DsFactory<Fruit> factory = new DsFactory(Fruit.class);     // build a factory
-factory.addAdapter(Type.class, adapter);                   // add custom type
-Fruit apple = factory.read(cursor);                        // read one
+factory.addAdapter(Type.class, adapter);               // add custom type
+
+Fruit apple = factory.read(rs);                        // read one
+
+factory.readArray(list, rs);                           // read array
 
 List<Fruit> list = new ArrayList<Fruit>();
-factory.readArray(list, cursor);                           // read array with custom list
+factory.readArray(list, rs);                           // read array with custom list
 ```
 
 ### 4. DsObserver
-If you want to do anything when the Bean has been deserialize, implements `DsObserver.class`, and do it in `onDsFinish()`.
+If you want to do anything after the Bean read, you can implement `DsObserver.class`, and do it in `onDsFinish()`.
 
 ```java
 public class Vegetables implements DsObserver {
@@ -111,10 +85,62 @@ public class Vegetables implements DsObserver {
     @DsColumn("Name")
     public String name;
     ...
-
     @Override
     public void onDsFinish(){}
 }
 
 ```
 
+### 5. Extra Field
+Data come from same row of ResultSet can deserialize into an extra field.
+
+source table:
+
+|UserName|Province|CityName|...|
+|:-:|:-:|:-:|:-:|
+|Nike|Guangdong|Shantou|...|
+|...|
+
+Usually, deserialize like this:
+
+```java
+public class User {
+
+    @DsColumn("UserName")
+    public String name;
+
+    @DsColumn("Province")
+    public String province;
+
+    @DsColumn("CityName")
+    public String city;
+    ...
+}
+
+```
+
+to package `province` and `city` into same field `location`, see below:
+
+```java
+public class User {
+
+    @DsColumn("UserName")
+    public String name;
+    ...
+
+    // NOTICE：must without annotion DsColumn, field name cannot as same sa column,
+    // otherwise using DsAdapter instead
+    public City location;
+}
+
+public class City {
+
+    @DsColumn("Province")
+    public String province;
+
+    @DsColumn("CityName")
+    public String city;
+    ...
+}
+
+```
