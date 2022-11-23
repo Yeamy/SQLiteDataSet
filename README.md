@@ -1,5 +1,7 @@
 SQLiteDataSet
 ===================================
+[![](https://img.shields.io/badge/platform-Android-red)](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase) [![](https://img.shields.io/github/license/Yeamy/SQLiteDataSet?color=green)](https://github.com/Yeamy/SQLiteDataSet/blob/master/LICENSE) [![](https://img.shields.io/maven-central/v/io.github.yeamy/sqlitedataset)](https://mvnrepository.com/artifact/io.github.yeamy/sqlitedataset)
+
 English | [中文](README-CN.md)
 
 This project is a simple tools to deserialize SQLite data to Java Bean on **Android**.
@@ -7,11 +9,11 @@ This project is a simple tools to deserialize SQLite data to Java Bean on **Andr
 For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
 
 ```groovy
-    implementation 'io.github.yeamy:sqlitedataset:1.2'
+implementation 'io.github.yeamy:sqlitedataset:1.2'
 ```
 
 ### 1. Annotation
-```java
+```
 public class Fruit {
 
     @DsColumn("Name")
@@ -32,7 +34,7 @@ public class Fruit {
 ### 2. DsReader
 Generally, using `DsReader` is an easy and fast way.
 
-```java
+```
 Statement stmt = ...;                                 // the source
 String sql = "SELECT ...";                            // the sql
 Fruit apple = DsReader.read(stmt, sql, Fruit.class);  // read one
@@ -42,7 +44,7 @@ ArrayList<Fruit> list = r DsReader.eadArray(stmt, sql, Fruit.class);
 ### 3. DsFactory\<T> & DsAdapter
 In order to deserialize custom field type, you may define a `DsFactory` and register a type with `DsAdapter`.
 
-```java
+```
 java.sql.ResultSet rs = ...;                           // the data source
 
 DsFactory<Fruit> factory = new DsFactory(Fruit.class); // build a factory
@@ -79,7 +81,7 @@ factory.readArray(list, rs);                           // read array with custom
 ### 4. DsObserver
 If you want to do anything after the Bean read, you can implement `DsObserver.class`, and do it in `onDsFinish()`.
 
-```java
+```
 public class Vegetables implements DsObserver {
 
     @DsColumn("Name")
@@ -103,7 +105,7 @@ source table:
 
 Usually, deserialize like this:
 
-```java
+```
 public class User {
 
     @DsColumn("UserName")
@@ -121,7 +123,7 @@ public class User {
 
 to package `province` and `city` into same field `location`, see below:
 
-```java
+```
 public class User {
 
     @DsColumn("UserName")
