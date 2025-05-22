@@ -1,3 +1,4 @@
 .idea
 .gradle
 *.iml
+build/reports/problems/problems-report.html
