@@ -495,8 +495,8 @@ public class DsReader {
     /**
      * read rows as map into the given collection
      *
-     * @param db   the database to read
-     * @param sql  the query sql statement
+     * @param db         the database to read
+     * @param sql        the query sql statement
      * @param collection the collection to accept rows data
      */
     public static void readArray(SQLiteDatabase db, String sql, Collection<Map<String, String>> collection) {
@@ -523,8 +523,8 @@ public class DsReader {
      */
     @Nullable
     public static <T> T read(SQLiteDatabase db, String sql, Class<T> type)
-            throws InstantiationException, IllegalAccessException {
-        return read(db, sql, new DsFactory<>(type), null);
+            throws ReflectiveOperationException {
+        return read(db, sql, type, null);
     }
 
     /**
@@ -532,15 +532,15 @@ public class DsReader {
      *
      * @param db       the database to read
      * @param sql      the query sql statement
-     * @param factory  factory of given type
+     * @param type     given type to return
      * @param fallback if no result
      * @return the row data as object or return fallback if no result
      */
     @Nullable
-    public static <T> T read(SQLiteDatabase db, String sql, DsFactory<T> factory, T fallback)
-            throws InstantiationException, IllegalAccessException {
+    public static <T> T read(SQLiteDatabase db, String sql, Class<T> type, T fallback)
+            throws ReflectiveOperationException {
         try (Cursor cursor = db.rawQuery(sql, null)) {
-            T t = factory.read(cursor);
+            T t = new InternalDsFactory<>(type).read(cursor, fieldMap);
             cursor.close();
             return (t != null) ? t : fallback;
         }
@@ -556,9 +556,9 @@ public class DsReader {
      */
     @NonNull
     public static <T> ArrayList<T> readArray(SQLiteDatabase db, String sql, Class<T> type)
-            throws InstantiationException, IllegalAccessException {
+            throws ReflectiveOperationException {
         ArrayList<T> out = new ArrayList<>();
-        readArray(db, sql, new DsFactory<>(type), out);
+        readArray(db, sql, type, out);
         return out;
     }
 
@@ -571,56 +571,52 @@ public class DsReader {
      * @param out  list to accept data
      */
     public static <T> void readArray(SQLiteDatabase db, String sql, Class<T> type, List<T> out)
-            throws InstantiationException, IllegalAccessException {
-        readArray(db, sql, new DsFactory<>(type), out);
-    }
-
-    /**
-     * read rows as the given type into the given list
-     *
-     * @param db      the database to read
-     * @param sql     the query sql statement
-     * @param factory factory of given type
-     * @param out     list to accept data
-     */
-    public static <T> void readArray(SQLiteDatabase db, String sql, DsFactory<T> factory, List<T> out)
-            throws InstantiationException, IllegalAccessException {
+            throws ReflectiveOperationException {
         try (Cursor cursor = db.rawQuery(sql, null)) {
-            factory.readArray(out, cursor);
+            new InternalDsFactory<>(type).readArray(cursor, fieldMap, out);
         }
     }
 
     /**
      * read rows as the given type into the given list
      *
-     * @param db    the database to read
-     * @param sql   the query sql statement
-     * @param type  given type to return
-     * @param limit limit how many rows to read
-     * @return rows data as object in a list, empty if no result
+     * @param db   the database to read
+     * @param sql  the query sql statement
+     * @param type given type to return
+     * @param out  collection to accept data
      */
-    @NonNull
-    public static <T> ArrayList<T> readArray(SQLiteDatabase db, String sql, Class<T> type, int limit)
-            throws InstantiationException, IllegalAccessException {
-        ArrayList<T> out = new ArrayList<>();
-        readArray(db, sql, new DsFactory<>(type), limit, out);
-        return out;
+    public static <T> void readArray(SQLiteDatabase db, String sql, Class<T> type, Collection<T> out)
+            throws ReflectiveOperationException {
+        try (Cursor cursor = db.rawQuery(sql, null)) {
+            new InternalDsFactory<T>(type).readArray(cursor, fieldMap, out);
+        }
     }
 
+    //---------------------------------------------------------------------------
+
+    private static Map<Class<?>, DsFieldReader<?>> fieldMap;
+
     /**
-     * read rows as the given type into the given list
+     * add a global field reader
      *
-     * @param db      the database to read
-     * @param sql     the query sql statement
-     * @param factory factory of given type
-     * @param limit   limit how many rows to read
-     * @param out     collection to accept data
+     * @param type   field type
+     * @param reader the field reader
      */
-    public static <T> void readArray(SQLiteDatabase db, String sql, DsFactory<T> factory, int limit, Collection<T> out)
-            throws InstantiationException, IllegalAccessException {
-        try (Cursor cursor = db.rawQuery(sql, null)) {
-            factory.readArray(out, cursor, limit);
-        }
+    public static <F> void register(Class<F> type, DsFieldReader<F> reader) {
+        if (fieldMap == null) fieldMap = new HashMap<>();
+        fieldMap.put(type, reader);
+    }
+
+    //---------------------------------------------------------------------------
+
+    /**
+     * create DsInsReader with a field reader
+     *
+     * @param type   field type
+     * @param reader the field reader
+     */
+    public static <F> DsInsReader with(Class<F> type, DsFieldReader<F> reader) {
+        return new DsInsReader().with(type, reader);
     }
 
 }

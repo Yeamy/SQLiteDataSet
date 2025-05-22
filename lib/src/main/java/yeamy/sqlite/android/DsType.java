@@ -20,7 +20,12 @@ public enum DsType {
 	Boolean(Boolean.class), //
 	BigDecimal(java.math.BigDecimal.class), //
 	String(String.class), //
+//    Date(java.sql.Date.class), //
+//    Time(java.sql.Time.class), //
+//    Timestamp(java.sql.Timestamp.class), //
+//    URL(java.net.URL.class), //
     Blob(byte[].class),
+    Enum(java.lang.Enum.class),
     Extra(Object.class), // custom type without DsColumn and DsIgnore
 	;
 

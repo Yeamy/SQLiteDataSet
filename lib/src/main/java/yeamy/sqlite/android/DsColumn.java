@@ -1,10 +1,10 @@
-package yeamy.sql;
+package yeamy.sqlite.android;
+
+import static java.lang.annotation.ElementType.FIELD;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.FIELD;
 
 /**
  * Annotation the column name of the field.
@@ -12,11 +12,8 @@ import static java.lang.annotation.ElementType.FIELD;
  * unless the column name is not the same with the field.
  * @see DsIgnore
  */
-@Target({FIELD})
+@Target({ FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DsColumn {
-    /**
-     * @return name of column
-     */
-    String value();
+	String value();
 }

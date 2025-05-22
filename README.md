@@ -6,14 +6,14 @@ English | [中文](README-CN.md)
 
 This project is a simple tools to deserialize SQLite data to Java Bean on **Android**.
 
-For java ResultSet also see [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
+For java Cursor also see [SQLDataSet](https://github.com/Yeamy/SQLiteDataSet/)
 
 ```groovy
 implementation 'io.github.yeamy:sqlitedataset:1.2'
 ```
 
 ### 1. Annotation
-```
+```java
 public class Fruit {
 
     @DsColumn("Name")
@@ -34,54 +34,48 @@ public class Fruit {
 ### 2. DsReader
 Generally, using `DsReader` is an easy and fast way.
 
+```java
+SQLiteDatabase db = ...;                            // the source
+String sql = "SELECT ...";                          // the sql
+Fruit apple = DsReader.read(db, sql, Fruit.class);  // read one
+ArrayList<Fruit> list = r DsReader.readArray(stmt, sql, Fruit.class);
 ```
-Statement stmt = ...;                                 // the source
-String sql = "SELECT ...";                            // the sql
-Fruit apple = DsReader.read(stmt, sql, Fruit.class);  // read one
-ArrayList<Fruit> list = r DsReader.eadArray(stmt, sql, Fruit.class);
-```
 
-### 3. DsFactory\<T> & DsAdapter
-In order to deserialize custom field type, you may define a `DsFactory` and register a type with `DsAdapter`.
+### 3. DsFieldReader
+In order to deserialize custom field type, you may define a `DsFieldReader`.
 
-```
-java.sql.ResultSet rs = ...;                           // the data source
+```java
+SQLiteDatabase db = ...;                           // the data source
 
-DsFactory<Fruit> factory = new DsFactory(Fruit.class); // build a factory
-
-DsAdapter adapter = new DsAdapter() {
+DsFieldReader<Skin> skinReader = new DsFieldReader<>() {
 
     /**
-     * @param t
-     *           any other base type field has been deserialized
-     * @param field
-     *           using field.getName() to distinguish same type.
-     * @param rs
-     *           jdbc select result,
-     * @param columnIndex
-     *           the index of the target column in ResultSet.
+     * @param cursor query result dataSet
+     * @param columnIndex column index in result dataet
+     * @return field instance
      */
-    @Override
-    public void read(Object t, Field field, ResultSet rs, int columnIndex) throws SQLException, InstantiationException, IllegalAccessException {
-        FruitType type = new FruitType(....);
-        field.set(t, type);
+    Skin read(Cursor cursor, int columnIndex) throws ReflectiveOperationException {
+        return new Skin(cursor.getString(columnIndex));
     }
 };
 
-factory.addAdapter(Type.class, adapter);               // add custom type
+// gobal
+DsReader.register(Skin.class, skinReader);      // add custom type
 
-Fruit apple = factory.read(rs);                        // read one
+Fruit f = reader.read(db, sql, Fruit.class);    // read
 
-factory.readArray(list, rs);                           // read array
+// instance
+DsInsReader reader = DsReader.with(Skin.class, skinReader)
+                             .with(Color.class, colorReader);
 
-List<Fruit> list = new ArrayList<Fruit>();
-factory.readArray(list, rs);                           // read array with custom list
+Fruit f = reader.read(db, sql, Fruit.class);    // read
+
 ```
 
 ### 4. DsObserver
 If you want to do anything after the Bean read, you can implement `DsObserver.class`, and do it in `onDsFinish()`.
 
-```
+```java
 public class Vegetables implements DsObserver {
 
     @DsColumn("Name")
@@ -94,7 +88,7 @@ public class Vegetables implements DsObserver {
 ```
 
 ### 5. Extra Field
-Data come from same row of ResultSet can deserialize into an extra field.
+Data come from same row of Cursor can deserialize into an extra field.
 
 source table:
 
@@ -105,7 +99,7 @@ source table:
 
 Usually, deserialize like this:
 
-```
+```java
 public class User {
 
     @DsColumn("UserName")
@@ -123,7 +117,7 @@ public class User {
 
 to package `province` and `city` into same field `location`, see below:
 
-```
+```java
 public class User {
 
     @DsColumn("UserName")

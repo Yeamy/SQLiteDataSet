@@ -6,14 +6,14 @@ SQLiteDataSet
 
 这个项目是一个简单的`Android` SQLite读取工具，将数据库中的数据反序列生成对象集。
 
-使用 Java ResultSet 可以查看 [SQLDataSet](https://github.com/Yeamy/SQLDataSet/)
+使用 Java Cursor 可以查看 [SQLDataSet](https://github.com/Yeamy/SQLiteDataSet/)
 
 ```groovy
 implementation 'io.github.yeamy:sqlitedataset:1.2'
 ```
 
 ### 1. Bean类声明
-```
+```java
 public class Fruit {
 
     @DsColumn("Name")
@@ -28,61 +28,54 @@ public class Fruit {
 
     public Skin skin;        // 没有声明DsColumn的参数当做扩展参数处理
 }
-
 ```
 
 ### 2. DsReader
 一般情况使用DsReader工具类快速读取已足矣
 
-```
-Statement stmt = ...;                                 // 数据源
+```java
+SQLiteDatabase db = ...;                                 // 数据源
 String sql = "SELECT ...";                            // 筛选的SQL语句
 Fruit apple = DsReader.read(stmt, sql, Fruit.class);
-ArrayList<Fruit> list = r DsReader.readArray(stmt, sql, Fruit.class);
+ArrayList<Fruit> list = DsReader.readArray(db, sql, Fruit.class);
 ```
 
 ### 3. DsFactory\<T> 和 DsAdapter
 使用自定义工厂类生产对象，并注册DsAdapter来扩展自定义类型。
 
-```
-java.sql.ResultSet rs = ...;                           // 数据来源
+```java
+SQLiteDatabase db = ...;                           // 数据来源
 
-DsFactory<Fruit> factory = new DsFactory(Fruit.class); // 实例化工厂
-
-DsAdapter adapter = new DsAdapter() {
+DsFieldReader<Skin> skinReader = new DsFieldReader<>() {
 
     /**
-     * @param t
-     *           基础类型的成员变量已读取，可以直接使用
-     * @param field
-     *           对应需要读取的参数，使用field.getName()区分
-     * @param rs
-     *           数据库搜索结果
-     * @param columnIndex
-     *           对应参数在rs中对应的位置
+     * @param cursor 数据库搜索结果
+     * @param columnIndex 对应参数在rs中对应的位置
+     * @return 对应需要读取的参数
      */
-    @Override
-    public void read(Object t, Field field, ResultSet rs, int columnIndex) throws SQLException, InstantiationException, IllegalAccessException {
-        FruitType type = new FruitType(....);
-        field.set(t, type);
+    Skin read(Cursor cursor, int columnIndex) throws ReflectiveOperationException {
+        return new Skin(cursor.getString(columnIndex));
     }
 };
 
-factory.addAdapter(Type.class, adapter);               // 添加自定义类型
+// 全局
+DsReader.register(Skin.class, skinReader);      // 添加自定义类型
 
-Fruit apple = factory.read(rs);                        // 读取单个
+Fruit f = reader.read(db, sql, Fruit.class);    // 读取
 
-factory.readArray(list, rs);                           // 读取多个
+// 实例
+DsInsReader reader = DsReader.with(Skin.class, skinReader)
+        .with(Color.class, colorReader);
 
-List<Fruit> list = new ArrayList<Fruit>();
-factory.readArray(list, rs);                           // 自定义list
+Fruit f = reader.read(db, sql, Fruit.class);    // 读取
+
 ```
 
 
 ### 4. DsObserver
 如果导入DsObserver接口，解析结束后会调用onDsFinish()方法，可以在此方法修改数据。
 
-```
+```java
 public class Vegetables implements DsObserver {
 
     @DsColumn("Name")
@@ -95,7 +88,7 @@ public class Vegetables implements DsObserver {
 ```
 
 ### 5. 扩展对象
-来自ResultSet的同一行数据可以被解析到同一实例内。
+来自Cursor的同一行数据可以被解析到同一实例内。
 
 数据表:
 
@@ -106,7 +99,7 @@ public class Vegetables implements DsObserver {
 
 通常会采用如下数据类：
 
-```
+```java
 public class User {
     @DsColumn("UserName")
     public String name;
@@ -123,7 +116,7 @@ public class User {
 
 为了将province和city封装到同个参数内，可以使用如下方式：
 
-```
+```java
 public class User {
     @DsColumn("UserName")
     public String name;
